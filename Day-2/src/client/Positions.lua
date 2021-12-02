@@ -1,6 +1,9 @@
 -- Day 1
 -- Guess 1: CORRECT - 1635930
 
+-- Day 2
+-- Guess 1: CORRECT - 1781819478
+
 local Positions = {}
 local collection = require(script.Parent.luafp.collection)
 local map = collection.map
@@ -16,16 +19,17 @@ local Forward = "forward"
 -- I don't think this works. Roblox ignores it, but
 -- the Up/Down/Forward work because they're basically string constants.
 -- luau-analyze is like "wtf is this"
-type Direction = Up | Down | Forward
+-- type Direction = Up | Down | Forward
 
 type Position =  { 
-    direction: Direction,
+    direction: string,
     amount: number
 }
 
 type Vector = {
     depth: number,
-    horizontal: number
+    horizontal: number,
+    aim: number
 }
 
 function Positions.getProductFromHorizontalAndDepth(inputs)
@@ -78,6 +82,27 @@ function moveUsingPositions(vector:Vector, position:Position):Vector
     return vector
 end
 
+function Positions.getProductUsingAim(input:string)
+    local positionStrings = splitString(input)
+    local positions = map(positionStringToPosition, positionStrings)
+    local finalVector = reduce(moveUsingPositionsAndAim, { depth = 0, horizontal = 0, aim = 0}, positions)
+    print("aim finalVector:", finalVector)
+    return finalVector.depth * finalVector.horizontal
+end
+
+function moveUsingPositionsAndAim(vector:Vector, position:Position):Vector
+    if position.direction == Up then
+        vector.aim = vector.aim - position.amount
+    elseif position.direction == Down then
+        vector.aim = vector.aim + position.amount
+    elseif position.direction == Forward then
+        vector.horizontal = vector.horizontal + position.amount
+        vector.depth = vector.depth + (vector.aim * position.amount)
+    else
+        error("Unknown direction: " .. position.direction)
+    end
+    return vector
+end
 
 return Positions
 
