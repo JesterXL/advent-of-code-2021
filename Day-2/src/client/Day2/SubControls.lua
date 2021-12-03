@@ -105,11 +105,14 @@ end
 
 function moveToNext(config)
     local part = config.parts[config.currentPlotIndex]
-    -- local goal = {}
-	-- goal.Position = nextPart.Position
-	-- local tweenInfo = TweenInfo.new(3, Enum.EasingStyle.Exponential, Enum.EasingDirection.InOut, 0, false, 0)
-	-- local tween = TweenService:Create(config.submarine, tweenInfo, goal)
-	-- tween:Play()
+    local goal = {}
+	goal.Position = part.Position
+	local tweenInfo = TweenInfo.new(3, Enum.EasingStyle.Exponential, Enum.EasingDirection.InOut, 0, false, 0)
+	-- local tween = TweenService:Create(config.submarine.PrimaryPart, tweenInfo, goal)
+
+    local tween = TweenService:Create(config.submarine, tweenInfo, goal)
+
+	tween:Play()
 
     -- config.submarine:MoveTo(nextPart.Position)
 
@@ -122,23 +125,23 @@ function moveToNext(config)
     -- xVelocity = velocity * cos(angle);
     -- yVelocity = velocity * sin(angle);
 
-    local velocity = 0.01
-    local notThereYet = true
-    while notThereYet do
-        local currentPosition = config.submarine.PrimaryPart.Position
-        local dx = part.Position.X - currentPosition.X
-        local dy = part.Position.Y - currentPosition.Y
-        local angle = math.atan2(dy, dx)
-        local xVelocity = velocity * math.cos(angle)
-        local yVelocity = velocity * math.sin(angle)
-        local newPosition = Vector3:new(currentPosition.X + xVelocity, currentPosition.Y + yVelocity, currentPosition.Y)
-        config.submarine:MoveTo(newPosition)
-        wait(0)
-        local updatedPosition = config.submarine.PrimaryPart.Position
-        if math.abs(part.Position.X - updatedPosition.X) <= 5 and math.abs(part.Position.Y - updatedPosition.Y) <= 5 then
-            notThereYet = false
-        end
-    end
+    -- local velocity = 0.01
+    -- local notThereYet = true
+    -- while notThereYet do
+    --     local currentPosition = config.submarine.PrimaryPart.Position
+    --     local dx = part.Position.X - currentPosition.X
+    --     local dy = part.Position.Y - currentPosition.Y
+    --     local angle = math.atan2(dy, dx)
+    --     local xVelocity = velocity * math.cos(angle)
+    --     local yVelocity = velocity * math.sin(angle)
+    --     local newPosition = Vector3:new(currentPosition.X + xVelocity, currentPosition.Y + yVelocity, currentPosition.Y)
+    --     config.submarine:MoveTo(newPosition)
+    --     wait(0)
+    --     local updatedPosition = config.submarine.PrimaryPart.Position
+    --     if math.abs(part.Position.X - updatedPosition.X) <= 5 and math.abs(part.Position.Y - updatedPosition.Y) <= 5 then
+    --         notThereYet = false
+    --     end
+    -- end
 
 end
 
