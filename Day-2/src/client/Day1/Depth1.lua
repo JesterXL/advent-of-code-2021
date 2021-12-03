@@ -8,11 +8,11 @@
 -- Guess 3: CORRECT - 1130, whoops, I used the wrong array in Reduce, lol! I need Promises, man...
 
 local Depth1 = {}
-local collection = require(script.Parent.luafp.collection)
+local collection = require(script.Parent.Parent.luafp.collection)
 local map = collection.map
 local reduce = collection.reduce
 local filter = collection.filter
-local array = require(script.Parent.luafp.array)
+local array = require(script.Parent.Parent.luafp.array)
 local slice = array.slice
 
 function Depth1.countIncreases(input)

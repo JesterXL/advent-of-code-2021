@@ -5,11 +5,11 @@
 -- Guess 1: CORRECT - 1781819478
 
 local Positions = {}
-local collection = require(script.Parent.luafp.collection)
+local collection = require(script.Parent.Parent.luafp.collection)
 local map = collection.map
 local reduce = collection.reduce
 local filter = collection.filter
-local array = require(script.Parent.luafp.array)
+local array = require(script.Parent.Parent.luafp.array)
 local slice = array.slice
 
 local Up = "up"
@@ -88,6 +88,12 @@ function Positions.getProductUsingAim(input:string)
     local finalVector = reduce(moveUsingPositionsAndAim, { depth = 0, horizontal = 0, aim = 0}, positions)
     print("aim finalVector:", finalVector)
     return finalVector.depth * finalVector.horizontal
+end
+
+function Positions.getPositions(input:string)
+    local positionStrings = splitString(input)
+    local positions = map(positionStringToPosition, positionStrings)
+    return positions
 end
 
 function moveUsingPositionsAndAim(vector:Vector, position:Position):Vector
