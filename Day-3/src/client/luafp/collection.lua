@@ -71,7 +71,7 @@ function collection.filter(func, list)
     end
     local built = {}
     for i, v in ipairs(list) do
-        local include = func(v)
+        local include = func(v, i, list)
         if include == true then
             table.insert(built, v)
         end
