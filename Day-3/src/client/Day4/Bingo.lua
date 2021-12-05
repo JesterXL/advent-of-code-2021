@@ -3,6 +3,10 @@
 -- Guess 2: 52965, fixed marked logic, but still too low
 -- Guess 3: 69579 - finally! Types for the win. They found all kind of parsing bugs and mispellings.
 
+-- Challenge 2
+-- Guess 1: 69579, too high
+-- Guess 2: 14877, CORRECT ... logic around board id's didn't work; they're lists, not objects. I should over type alias in the future. Product types for the win.
+
 local Bingo = {}
 local array = require(script.Parent.Parent.luafp.array)
 local tail = array.tail
@@ -31,13 +35,13 @@ function Bingo.playBingo(input)
     local gameResult = reduce(
         function(acc, number)
             if acc.winner == false then
-                print("drawing number:", number)
+                -- print("drawing number:", number)
                 acc.boards = drawNumber(number, acc.boards)
                 -- Did anyone win?
                 local rowWinningUnmarkedNumbers = getAnyBoardWinnerUnmarkedRowNumbers(acc.boards)
                 local colWinningUnmarkedNumbers = getAnyBoardWinnerUnmarkedColNumbers(acc.boards)
                 if rowWinningUnmarkedNumbers ~= nil and #rowWinningUnmarkedNumbers > 0 then
-                    print("Found some row winner(s)!")
+                    -- print("Found some row winner(s)!")
                     local firstRowWinner = rowWinningUnmarkedNumbers[1]
                     acc.winner = true
                     acc.allUnmarkedNumbers = firstRowWinner.unmarked
@@ -45,7 +49,7 @@ function Bingo.playBingo(input)
                     acc.board = firstRowWinner.board
                     return acc
                 elseif colWinningUnmarkedNumbers ~= nil and #colWinningUnmarkedNumbers > 0 then
-                    print("Found some col winner(s)!")
+                    -- print("Found some col winner(s)!")
                     local firstColWinner = colWinningUnmarkedNumbers[1]
                     acc.winner = true
                     acc.allUnmarkedNumbers = firstColWinner.unmarked
@@ -53,7 +57,7 @@ function Bingo.playBingo(input)
                     acc.board = firstColWinner.board
                     return acc
                 else
-                    print("No winner(s) yet.")
+                    -- print("No winner(s) yet.")
                     return acc
                 end
             else
@@ -82,8 +86,114 @@ function Bingo.playBingo(input)
     end
 end
 
+
+function Bingo.getLastWinningBoard(input)
+    local data = input:split("\n\n")
+    local numberStrings = data[1]:split(",")
+    local numbers = map(
+        function(numberString)
+            return tonumber(numberString)
+        end, 
+        numberStrings
+    )
+    local boardStrings = tail(data)
+    local boards = getBoardsFromStrings(boardStrings)
+    -- print("boards:", boards)
+    local gameResult = reduce(
+        function(acc, number)
+            if #acc.boards > 0 then
+                acc.boards = drawNumber(number, acc.boards)
+                -- Did anyone win?
+                local rowWinningUnmarkedNumbers = getAnyBoardWinnerUnmarkedRowNumbers(acc.boards)
+                local removedRowWinners = removeWinners(acc.boards, rowWinningUnmarkedNumbers)
+                if #rowWinningUnmarkedNumbers > 0 then
+                    print("#rowWinningUnmarkedNumbers:", #rowWinningUnmarkedNumbers, "#removedRowWinners:", #removedRowWinners)
+                end
+                acc.boards = removedRowWinners
+                if rowWinningUnmarkedNumbers ~= nil and #rowWinningUnmarkedNumbers > 0 then
+                    print("Found some row winner(s)!")
+                    local lastRowWinner = rowWinningUnmarkedNumbers[#rowWinningUnmarkedNumbers]
+                    acc.winner = true
+                    acc.allUnmarkedNumbers = lastRowWinner.unmarked
+                    acc.latestNumber = number
+                    acc.board = lastRowWinner.board
+                end
+
+                local colWinningUnmarkedNumbers = getAnyBoardWinnerUnmarkedColNumbers(acc.boards)
+                local removedColWinners = removeWinners(acc.boards, colWinningUnmarkedNumbers)
+                if #colWinningUnmarkedNumbers > 0 then
+                    print("#acc.boards:", #acc.boards, "#colWinningUnmarkedNumbers:", #colWinningUnmarkedNumbers, "#removedColWinners:", #removedColWinners)
+                end
+                acc.boards = removedColWinners
+                if colWinningUnmarkedNumbers ~= nil and #colWinningUnmarkedNumbers > 0 then
+                    print("Found some col winner(s)!")
+                    local lastColWinner = colWinningUnmarkedNumbers[#colWinningUnmarkedNumbers]
+                    acc.winner = true
+                    acc.allUnmarkedNumbers = lastColWinner.unmarked
+                    acc.latestNumber = number
+                    acc.board = lastColWinner.board
+                end
+
+                return acc
+            else
+                return acc
+            end
+        end,
+        { winner = false, boards = boards },
+        numbers
+    )
+    -- print("gameResult.winner:", gameResult.winner)
+    if gameResult.winner == true then
+        print("*** Last Winning Board ***")
+        printBoard(gameResult.board)
+        local total = reduce(
+            function(acc, item)
+                return acc + item
+            end,
+            0,
+            gameResult.allUnmarkedNumbers
+        )
+        print("total:", total, "gameResult.latestNumber:", gameResult.latestNumber, "product:", (total * gameResult.latestNumber))
+        return total * gameResult.latestNumber
+    else
+        printAllBoards(gameResult.boards)
+        return 0
+    end
+end
+
+function removeWinners(boards:{Board}, winners:{WinningBoard}):{Board}
+    return reduce(
+        function(acc:{Board}, winner:WinningBoard):{Board}
+            return removeWinner(acc, winner)
+        end,
+        boards,
+        winners
+    )
+end
+
+function removeWinner(boards:{Board}, winner:WinningBoard):{Board}
+    print("removeWinner, #boards:", #boards)
+    local filtered = filter(
+        function(board:Board):boolean
+            if board[1].id == winner.board[1].id then
+                return false
+            else
+                return true
+            end
+        end,
+        boards
+    )
+    print("removeWinner, #filtered:", #filtered)
+    return filtered
+end
+
 function getBoardsFromStrings(boardStrings:{string}):{Board}
-   return map(getBoard, boardStrings)
+   return map(
+        function(boardString:string, index:number)
+            return getBoard(boardString, tostring(index))
+        end, 
+        boardStrings
+    )
 end
 
 function printBoard(board:Board):string
@@ -153,11 +263,12 @@ type BoardItem = {
     number: number,
     colIndex: ColIndex,
     rowIndex: RowIndex,
-    marked: boolean
+    marked: boolean,
+    id:string
 }
 type Board = {BoardItem}
 
-function getBoard(stringInput:string):Board
+function getBoard(stringInput:string, id:string):Board
     assert(type(stringInput) == "string", "stringInput is not a string")
     assert(stringInput ~= "", "stringInput is an empty string")
     local boards = {}
@@ -169,7 +280,7 @@ function getBoard(stringInput:string):Board
         local cols = parseColumnString(numberString)
         for col=1,#cols do
             local num = cols[col]
-            local board = createBoard(num, col, row, false)
+            local board = createBoardItem(num, col, row, false, id)
             table.insert(boards, board)
         end
     end
@@ -178,7 +289,7 @@ end
 
 function parseColumnString(numberString:string):{string}
     local cols = numberString:split(' ')
-    print("cols:", cols)
+    -- print("cols:", cols)
     local filtered = filter(
         function(item:string):boolean
             if item == "" then
@@ -201,7 +312,7 @@ function printTable(table)
     return str
 end
 
-function createBoard(num:string?, colIndex:number?, rowIndex:number?, marked:boolean?):Board
+function createBoardItem(num:string?, colIndex:number?, rowIndex:number?, marked:boolean?, id:string):Board
     assert(type(num) == "string", "num is a not a string.")
     assert(num ~= "", "Num is a blank string.")
 
@@ -219,7 +330,7 @@ function createBoard(num:string?, colIndex:number?, rowIndex:number?, marked:boo
     assert(type(number) == "number", "Parsed number is not a number. Parsing failed somehow.")
     assert(number >= 0, "Number is not 0 or greater.")
 
-    return { number = number, colIndex = colIndex, rowIndex = rowIndex, marked = false }
+    return { number = number, colIndex = colIndex, rowIndex = rowIndex, marked = false, id = id }
 end
 
 function drawNumber(number, boards)
