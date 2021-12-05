@@ -86,7 +86,7 @@ function Positions.getProductUsingAim(input:string)
     local positionStrings = splitString(input)
     local positions = map(positionStringToPosition, positionStrings)
     local finalVector = reduce(moveUsingPositionsAndAim, { depth = 0, horizontal = 0, aim = 0}, positions)
-    print("aim finalVector:", finalVector)
+    -- print("aim finalVector:", finalVector)
     return finalVector.depth * finalVector.horizontal
 end
 
