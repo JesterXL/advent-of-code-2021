@@ -216,7 +216,7 @@ end
 -- @return error String error message if parameter validation failed
 -- @usage local list = require 'luafp/list'
 -- SpiceGirls = {}
--- print(list.file('ziggyZigAh', 1, 3, SpiceGirls)) -- {'ziggyZigAh', 'ziggyZigAh', 'ziggyZigAh'}
+-- print(list.fill('ziggyZigAh', 1, 3, SpiceGirls)) -- {'ziggyZigAh', 'ziggyZigAh', 'ziggyZigAh'}
 function array.fill(value, startIndex, endIndex, list)
     -- [jwarden 1.20.2018] Removing because currying prevents this.
     -- if predicates.isNil(value) == true then

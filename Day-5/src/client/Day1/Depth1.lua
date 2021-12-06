@@ -52,7 +52,7 @@ function Depth1.countWindows(input)
     local noBlankWindows = filter(removeBlankWindows, windows)
     local summedWindows = map(sumWindow, noBlankWindows)
     local accumulator = reduce(countDepthIncreases, {last = summedWindows[1], count = 0}, summedWindows)
-    print("accumulator:", accumulator.count)
+    -- print("accumulator:", accumulator.count)
     return accumulator.count
 end
 

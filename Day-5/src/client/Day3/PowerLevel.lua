@@ -286,10 +286,10 @@ function extractOxygenAndCO2(bitstringList)
 end
 
 function getOxygen(combined, bitstringList, bitIndex)
-    print("getOxygen, #bitstringList:", #bitstringList)
+    -- print("getOxygen, #bitstringList:", #bitstringList)
     if #bitstringList <= 1 then return bitstringList end
     local countedItem = combined[bitIndex]
-    print("countedItem:", countedItem)
+    -- print("countedItem:", countedItem)
     if countedItem.equal == false then
         return filterBits(countedItem.largest, bitIndex, bitstringList)
     else
